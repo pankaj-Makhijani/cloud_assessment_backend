@@ -125,7 +125,7 @@ sqs.sendMessage(params, function(err, data) {
 		});
 	}
 
-	uploadToS3(process.env.BUCKET_NAME, 'public', req.body.photo).then(function (result) {
+	uploadToS3(process.env.BUCKET_NAME, req.body.name, req.body.photo).then(function (result) {
 		console.log("Uploaded to s3:", result);
 		console.log("Download Your Uploaded Item Here"+ result.Location);
 		
