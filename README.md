@@ -1,11 +1,13 @@
-How to use this project?
-In order to use this project clone this repo
+# How to use this project?
+
+## Firstly Creating backend in our pc
+Clone this repo.
 Install npm modules aws-sdk,fs,express,cors,path,body-parser,mysql,nodemailer,nodemon
 
-download aws-cli and in terminal write aws-configure and provide secret key and access key credentials.
+download aws-cli and in terminal write aws-configure and provide secret key and access key credentials so that you can manage your aws services from your terminal.
 
 create s3 bucket
-provide it's name environment variable
+provide it's name in the environment variable
 make public access to this bucket
 create new role which will be used by your code to access s3 bucket provide its access key and secret key in environment variables.
 create new policy to access s3 bucket and associate it with new s3 role.
@@ -24,12 +26,24 @@ associate sqs as source with lambda function and sns as destination with lambda 
 
 In lambda function write code provided in lambda folder.
 
-now run your backend nodemon index.js
-boom your backend is up and running and ready to serve request.
+access your rds through mysql workbench and run following commands
+use testdb;
+create table Users (
+	id int not null auto_increment, 
+	name varchar(255) not null,
+    email varchar(255) not null,
+    mobile varchar(255) not null,
+    age varchar(255) not null,
+    country varchar(255) not null,
+    primary key (id)
+);
+now run your backend node index.js or nodemon index.js
+Boom your backend is up and running on localhost.
 
 Whole of the above process was configuring backend on your desktop on localhost.
 Now lets see the process to deploy it on aws ec2 instance
 
+## Configuring backend on ec2 instance
 Now in order to host this backend create ubuntu 18.04 ec2 instance
 Now ssh into your instance using puttygen(to generate private key ppk) and putty or else open gitbash in the directory where you downloaded your instance .pem key
 
@@ -63,7 +77,7 @@ nodemon index.js
 
 Boom your backend api is running on EC2 public ip and can serve to the requests on the internet
 
-Database configuration
+## Database configuration
 Now ssh into your ubuntu instance in another window.
 
 sudo su -
