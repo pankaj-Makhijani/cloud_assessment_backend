@@ -57,41 +57,45 @@ app.get('/',(req,res)=>{
 
 
 
-app.post('/',(req,res)=>{
+app.post('/',(req,res)=>
+   {
 	var {name,email,mobile,age,country,photo} =req.body;
 	const fileName = req.body.photo;
 	var records = [[req.body.name,req.body.email,req.body.mobile,req.body.age,req.body.country]];
 	// var records = [[name,email,mobile,age,country]];
 	if(records[0][0]!=null)
 	{
-		con.query("INSERT into Users2 (name,email,mobile,age,country) VALUES ?",[records],function(err,res,fields){
-			
-// Create an SQS service object
-var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
-
-var params = {
-   // Remove DelaySeconds parameter and value for FIFO queues
-  DelaySeconds: 10,
-  MessageBody: req.body.email,
-  // MessageDeduplicationId: "TheWhistler",  // Required for FIFO queues
-  // MessageGroupId: "Group1",  // Required for FIFO queues
-  QueueUrl: "https://sqs.us-east-1.amazonaws.com/853148436043/TestQueue"
-};
-
-sqs.sendMessage(params, function(err, data) {
-  if (err) {
-    console.log("Error", err);
-  } else {
-    console.log("Data moved to Queue Successfully", data.MessageId);
-  }
-});
-			if(err) throw err;
-			console.log(res);
+		con.query("INSERT into Users2 (name,email,mobile,age,country) VALUES ?",[records],function(err,res,fields)
+		{	
+		// Create an SQS service object
+		var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+		var params = {
+   			// Remove DelaySeconds parameter and value for FIFO queues
+  			DelaySeconds: 10,
+			//send user email in queue body
+  			MessageBody: req.body.email,
+  			// MessageDeduplicationId: "TheWhistler",  // Required for FIFO queues
+  			// MessageGroupId: "Group1",  // Required for FIFO queues
+  			QueueUrl: process.env.QUEUE_URL
+		};
+		sqs.sendMessage(params, function(err, data)
+		{
+  			if (err)
+			{
+    				console.log("Error", err);
+  			}
+			else
+			{
+    				console.log("Data moved to Queue Successfully", data.MessageId);
+  			}
 		});
-	}
+		
+		if(err) throw err;
+			console.log(res);
+	});
+   }
 
-
-	function uploadToS3(bucketName, keyPrefix, filePath) {
+function uploadToS3(bucketName, keyPrefix, filePath) {
 		// ex: /path/to/my-picture.png becomes my-picture.png
 		var fileName = path.basename(filePath);
 		var fileStream = fs.createReadStream(filePath);
@@ -106,14 +110,14 @@ sqs.sendMessage(params, function(err, data) {
 			fileStream.once('error', reject);
 			s3.upload(
 				{
-					//User can upload objects but cannot view them
+					//User can upload objects but cannot view them (storing objects privately in bucket)
 					Bucket: bucketName,
 					Key: keyName,
 					Body: fileStream,
 					ContentType:'image/jpeg',
 					ACL:'private'
 
-					//If we want user to upload the object and want to provide the public link to view the image
+					//If we want user to upload the object and want to provide the public link to view the image (storing objects privately in bucket)
 					// Bucket: bucketName,
 					// Key: keyName,
 					// Body: fileStream,
@@ -150,9 +154,8 @@ sqs.sendMessage(params, function(err, data) {
 
 	res.json('Form submitted successfully');
 
-
 })
 
-app.listen(3001,()=>{
-  console.log("Port 3001");
+app.listen(80,()=>{
+  console.log("Port 80");
 })
